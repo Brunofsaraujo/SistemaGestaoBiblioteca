@@ -20,7 +20,7 @@ namespace SistemaGestaoBiblioteca.Dominio.Entidade
             AddNotifications(new Contract<Usuario>()
                 .Requires()
                 .IsGreaterThan(Identificacao, default, nameof(Nome), "O usuário deve possuir um número de identificação.")
-                .IsNotNullOrEmpty(Nome, nameof(Nome), "O Nome do usuário deve ser preenchido.")
+                .IsNotNullOrWhiteSpace(Nome, nameof(Nome), "O Nome do usuário deve ser preenchido.")
             );
         }
 

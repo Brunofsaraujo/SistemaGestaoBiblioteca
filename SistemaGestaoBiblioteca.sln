@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35818.85 d17.13
+VisualStudioVersion = 17.13.35818.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaGestaoBiblioteca", "SistemaGestaoBiblioteca.csproj", "{44C3ADE1-7FCF-4D9C-9D93-55638C01AF02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaGestaoBiblioteca", "SistemaGestaoBiblioteca\SistemaGestaoBiblioteca.csproj", "{44C3ADE1-7FCF-4D9C-9D93-55638C01AF02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaGestaoBiblioteca.Tests", "SistemaGestaoBiblioteca.Tests\SistemaGestaoBiblioteca.Tests.csproj", "{C49B17C4-176F-43B2-B49F-47ECD55205BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{44C3ADE1-7FCF-4D9C-9D93-55638C01AF02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44C3ADE1-7FCF-4D9C-9D93-55638C01AF02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44C3ADE1-7FCF-4D9C-9D93-55638C01AF02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C49B17C4-176F-43B2-B49F-47ECD55205BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C49B17C4-176F-43B2-B49F-47ECD55205BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C49B17C4-176F-43B2-B49F-47ECD55205BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C49B17C4-176F-43B2-B49F-47ECD55205BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

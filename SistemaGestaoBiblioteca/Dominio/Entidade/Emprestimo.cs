@@ -1,5 +1,6 @@
 ﻿using Flunt.Validations;
 using SistemaGestaoBiblioteca.Dominio.Enum;
+using SistemaGestaoBiblioteca.Dominio.ValueObjects;
 
 namespace SistemaGestaoBiblioteca.Dominio.Entidade
 {
@@ -27,13 +28,16 @@ namespace SistemaGestaoBiblioteca.Dominio.Entidade
 
         private void ValidaEmprestimo()
         {
-            AddNotifications(new Contract<Usuario>()
+            var contrato = new Contract<Usuario>()
                 .Requires()
-                .IsNotNull(Livro, nameof(Livro), "Deve ser informado um livro para empréstimo.")
-                .IsTrue(ValidaLivroDisponivelEmprestimo(), nameof(Livro), $"Livro '{Livro.Titulo}' está indisponível para empréstimo.")
+                .IsNotNull(Livro, nameof(Livro), "Deve ser informado um livro para empréstimo.")                
                 .IsNotNull(Usuario, nameof(Usuario), "Deve ser informado um usuário para empréstimo de livro.")
-                .AreNotEquals(DataEmprestimo, default, nameof(DataEmprestimo), "Deve ser informada uma data de empréstimo do livro.")
-            );
+                .AreNotEquals(DataEmprestimo, default, nameof(DataEmprestimo), "Deve ser informada uma data de empréstimo do livro.");
+
+            if (Livro is not null)
+                contrato.IsTrue(ValidaLivroDisponivelEmprestimo(), nameof(Livro), $"Livro '{Livro.Titulo}' está indisponível para empréstimo.");
+
+            AddNotifications(contrato);
         }
 
         public static Result<Emprestimo> Criar(Livro livro, Usuario usuario, DateTime dataEmprestimo)
