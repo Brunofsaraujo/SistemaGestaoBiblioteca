@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SistemaGestaoBiblioteca.Aplicacao;
+using SistemaGestaoBiblioteca.Dominio.Observers;
 using SistemaGestaoBiblioteca.Infra;
 
 namespace SistemaGestaoBiblioteca.Apresentacao
@@ -14,10 +15,9 @@ namespace SistemaGestaoBiblioteca.Apresentacao
                 .BuildServiceProvider();
 
             var bibliotecaService = serviceProvider.GetRequiredService<BibliotecaService>();
+            var notificacaoService = new NotificacaoService();
+            bibliotecaService.AdicionarObservador(notificacaoService);
             _ = new Menu(bibliotecaService);
-
-            //var notificacaoService = new NotificacaoService();
-            //biblioteca.RegistrarObserver(notificacaoService);
         }
     }
 }

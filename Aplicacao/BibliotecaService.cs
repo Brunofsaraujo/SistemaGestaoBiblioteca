@@ -15,11 +15,11 @@ namespace SistemaGestaoBiblioteca.Aplicacao
         private readonly InMemoryRepository<Livro> _repositorioLivros = repositorioLivros;
         private readonly InMemoryRepository<Usuario> _repositorioUsuarios = repositorioUsuarios;
         private readonly InMemoryRepository<Emprestimo> _repositorioEmprestimos = repositorioEmprestimos;
-        private readonly List<IObserver> _observers = [];
+        private readonly List<IObserver> _observadores = [];
 
         public void CadastrarLivro(LivroDto livroDto)
         {
-            var resultado = Livro.Criar(livroDto.Titulo, livroDto.Autor, livroDto.ISBN);
+            var resultado = Livro.Criar(livroDto.Titulo, livroDto.Autor, livroDto.ISBN.ToUpper());
 
             if (!resultado.IsSuccess)
             {
@@ -33,9 +33,10 @@ namespace SistemaGestaoBiblioteca.Aplicacao
 
             var livro = resultado.Value!;
 
-            if (_repositorioLivros.ObterTodos().Any(livroCadastrado => livroCadastrado.IsbnNormalizado == livro.IsbnNormalizado))
+            if (_repositorioLivros.ObterTodos().Any(livroCadastrado => livroCadastrado.IsbnNormalizado.Equals(livro.IsbnNormalizado, StringComparison.CurrentCultureIgnoreCase)))
             {
-                Console.WriteLine($"\nErro: O livro com ISBN '{livro.ISBN}' já está cadastrado.");
+                Console.WriteLine($"\nErro ao adicionar livro {livroDto.Titulo}:");
+                Console.WriteLine($"--> O livro com ISBN '{livro.ISBN}' já está cadastrado.");
                 return;
             }
 
@@ -63,15 +64,15 @@ namespace SistemaGestaoBiblioteca.Aplicacao
             if (usuariosCadastrados.Any(usuarioCadastrado => usuarioCadastrado.Identificacao == usuario.Identificacao))
             {
                 Console.WriteLine($"\nErro ao adicionar usuário:");
-                string mensagem = $"\nIdentificação '{usuario.Identificacao}' de usuário já cadastrado.";
+                string mensagem = $"--> Identificação '{usuario.Identificacao}' de usuário já cadastrado.";
                 Console.WriteLine(mensagem);
                 return;
             }
 
-            if (usuariosCadastrados.Any(usuarioCadastrado => usuarioCadastrado.Nome == usuario.Nome))
+            if (usuariosCadastrados.Any(usuarioCadastrado => usuarioCadastrado.Nome.Equals(usuario.Nome, StringComparison.CurrentCultureIgnoreCase)))
             {
                 Console.WriteLine($"\nErro ao adicionar usuário:");
-                string mensagem = $"\nUsuário '{usuario.Nome}' já cadastrado.";
+                string mensagem = $"--> Usuário '{usuario.Nome}' já cadastrado.";
                 Console.WriteLine(mensagem);
                 return;
             }
@@ -100,7 +101,7 @@ namespace SistemaGestaoBiblioteca.Aplicacao
                 return;
             }
 
-            var livro = _repositorioLivros.ObterTodos().FirstOrDefault(livro => livro.ISBN == emprestimoDto.ISBN && livro.Status == StatusLivro.Disponivel);
+            var livro = _repositorioLivros.ObterTodos().FirstOrDefault(livro => livro.ISBN.Equals(emprestimoDto.ISBN, StringComparison.CurrentCultureIgnoreCase) && livro.Status == StatusLivro.Disponivel);
             if (livro is null)
             {
                 Console.WriteLine($"\nErro ao realizar empréstimo de livro:");
@@ -122,7 +123,7 @@ namespace SistemaGestaoBiblioteca.Aplicacao
             if (usuarioEmPosseLivro != null)
             {
                 Console.WriteLine($"\nErro ao realizar empréstimo de livro:");
-                mensagem = $"--> Usuário com identificação: {usuarioEmPosseLivro.Usuario.Identificacao} ({usuarioEmPosseLivro.Usuario.Nome}) em posse do livro {usuarioEmPosseLivro.Livro.ISBN} ({usuarioEmPosseLivro.Livro.Titulo}).\n    É permitido apenas 1 empréstimo simultâneo por usuário.";
+                mensagem = $"--> Usuário com identificação: {usuarioEmPosseLivro.Usuario.Identificacao} ({usuarioEmPosseLivro.Usuario.Nome}) em posse do livro com ISBN: {usuarioEmPosseLivro.Livro.ISBN} ({usuarioEmPosseLivro.Livro.Titulo}).\n    É permitido apenas 1 empréstimo simultâneo por usuário.";
                 Console.WriteLine(mensagem);
                 return;
             }
@@ -145,23 +146,23 @@ namespace SistemaGestaoBiblioteca.Aplicacao
             var emprestimo = resultado.Value!;
             _repositorioEmprestimos.Adicionar(emprestimo);
             Console.WriteLine("\nEmpréstimo realizado com sucesso!");
-            //NotificarObservers($"O livro '{livro.Titulo}' foi emprestado para {usuario.Nome}.");
+            NotificarObservadores($"O livro '{livro.Titulo}' foi emprestado para {usuario.Nome}.");
         }
 
         public void DevolverLivro(string isbn)
         {
             if (string.IsNullOrWhiteSpace(isbn))
             {
-                Console.WriteLine("ISBN deve ser obrigatóriamente preenchido.");
+                Console.WriteLine("--> ISBN deve ser obrigatóriamente preenchido.");
                 return;
             }
 
             string isbnNormalizado = NormalizadorISBN.NormalizarISBN(isbn);
 
-            var livro = _repositorioLivros.ObterTodos().FirstOrDefault(livro => livro.ISBN == isbnNormalizado);
+            var livro = _repositorioLivros.ObterTodos().FirstOrDefault(livro => livro.ISBN.Equals(isbnNormalizado, StringComparison.CurrentCultureIgnoreCase));
             if (livro is null)
             {
-                Console.WriteLine($"Livro com ISBN: {isbnNormalizado} não cadastrado.");
+                Console.WriteLine($"--> Livro com ISBN: {isbnNormalizado} não cadastrado.");
                 return;
             }
             else if (livro.Status == StatusLivro.Disponivel)
@@ -170,16 +171,16 @@ namespace SistemaGestaoBiblioteca.Aplicacao
                 return;
             }
 
-            var emprestimo = _repositorioEmprestimos.ObterTodos().FirstOrDefault(emprestimo => emprestimo.Livro.ISBN == isbnNormalizado && emprestimo.DataDevolucao is null);
+            var emprestimo = _repositorioEmprestimos.ObterTodos().FirstOrDefault(emprestimo => emprestimo.Livro.ISBN.Equals(isbnNormalizado, StringComparison.CurrentCultureIgnoreCase) && emprestimo.DataDevolucao is null);
             if (emprestimo is null)
             {
-                Console.WriteLine($"Livro: {livro.Titulo} ({livro.ISBN}) encontra-se emprestado.");
+                Console.WriteLine($"--> Livro: {livro.Titulo} ({livro.ISBN}) encontra-se emprestado.");
                 return;
             }
 
             emprestimo.DevolverLivro(livro);
             Console.WriteLine("\nLivro devolvido com sucesso!");
-            //NotificarObservers($"O livro '{livro.Titulo}' foi devolvido e está disponível.");
+            NotificarObservadores($"O livro '{livro.Titulo}' foi devolvido.");
         }
 
         public void ListarLivrosDisponiveis()
@@ -187,7 +188,7 @@ namespace SistemaGestaoBiblioteca.Aplicacao
             var livrosDisponiveis = _repositorioLivros.ObterTodos().Where(l => l.Status == StatusLivro.Disponivel);
 
             if (!livrosDisponiveis.Any())
-                Console.WriteLine("Não há livros disponíveis para empréstimo.\n");
+                Console.WriteLine("Não há livros disponíveis para empréstimo.");
             else
                 for (int indice = 0; indice < livrosDisponiveis.Count(); indice++)
                 {
@@ -200,32 +201,23 @@ namespace SistemaGestaoBiblioteca.Aplicacao
         {
             var emprestimos = _repositorioEmprestimos.ObterTodos();
             if (!emprestimos.Any())
-                Console.WriteLine("Não há empréstimos realizados até o momento.\n");
+                Console.WriteLine("Não há empréstimos realizados até o momento.");
             else
                 for (int indice = 0; indice < emprestimos.Count(); indice++)
                 {
                     var emprestimo = emprestimos.ElementAt(indice);
                     Console.WriteLine(
-                        $"{indice + 1}. Nome usuário: {emprestimo.Usuario.Nome} | Data empréstimo: {emprestimo.DataEmprestimo:dd-MM-yyyy} | Data devolução: {emprestimo.DataDevolucao?.ToString("dd-MM-yyyy") ?? "-"} | Nome do livro: {emprestimo.Livro.Titulo} | ISBN: {emprestimo.Livro.ISBN}");
+                        $"{indice + 1}. Usuário: {emprestimo.Usuario.Nome} | Data empréstimo: {emprestimo.DataEmprestimo:dd-MM-yyyy} | Data devolução: {emprestimo.DataDevolucao?.ToString("dd-MM-yyyy") ?? "-"} | Livro: {emprestimo.Livro.Titulo} | ISBN: {emprestimo.Livro.ISBN}");
                 }
         }
 
-        public void RegistrarObserver(IObserver observer)
-        {
-            _observers.Add(observer);
-        }
+        public void AdicionarObservador(IObserver observador) => 
+            _observadores.Add(observador);
 
-        public void RemoverObserver(IObserver observer)
+        public void NotificarObservadores(string mensagem)
         {
-            _observers.Remove(observer);
-        }
-
-        public void NotificarObservers(string mensagem)
-        {
-            foreach (var observer in _observers)
-            {
-                observer.Update(mensagem);
-            }
+            foreach (var observador in _observadores)
+                observador.Atualizar(mensagem);
         }
     }
 }

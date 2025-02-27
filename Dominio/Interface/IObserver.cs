@@ -2,6 +2,6 @@
 {
     public interface IObserver
     {
-        void Update(string mensagem);
+        void Atualizar(string mensagem);
     }
 }

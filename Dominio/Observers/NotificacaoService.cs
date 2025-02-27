@@ -4,9 +4,7 @@ namespace SistemaGestaoBiblioteca.Dominio.Observers
 {
     public class NotificacaoService : IObserver
     {
-        public void Update(string mensagem)
-        {
-            Console.WriteLine("Notificação: " + mensagem);
-        }
+        public void Atualizar(string mensagem) =>
+            MessageBox.Show(mensagem, "Notificação da Biblioteca", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 }
