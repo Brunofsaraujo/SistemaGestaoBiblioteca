@@ -1,22 +1,36 @@
-﻿namespace SistemaGestaoBiblioteca.Dominio.Entidade
+﻿using Flunt.Validations;
+
+namespace SistemaGestaoBiblioteca.Dominio.Entidade
 {
     public class Usuario : BaseEntity
     {
-        public Usuario(
-            string nome)
+        private Usuario(int identificacao, string nome)
         {
-            Id = Guid.NewGuid();
+            Identificacao = identificacao;
             Nome = nome;
 
             ValidaCadastroUsuario();
         }
 
-        public Guid Id { get; }
+        public int Identificacao { get; }
         public string Nome { get; }
 
         private void ValidaCadastroUsuario()
         {
+            AddNotifications(new Contract<Usuario>()
+                .Requires()
+                .IsGreaterThan(Identificacao, default, nameof(Nome), "O usuário deve possuir um número de identificação.")
+                .IsNotNullOrEmpty(Nome, nameof(Nome), "O Nome do usuário deve ser preenchido.")
+            );
+        }
 
+        public static Result<Usuario> Criar(int identificacao, string nome)
+        {
+            var usuario = new Usuario(identificacao, nome);
+
+            return usuario.IsValid
+                ? Result<Usuario>.Success(usuario)
+                : Result<Usuario>.Failure([.. usuario.Notifications.Select(notificacao => notificacao.Message)]);
         }
     }
 }

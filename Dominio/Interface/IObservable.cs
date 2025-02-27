@@ -1,6 +1,9 @@
 ﻿namespace SistemaGestaoBiblioteca.Dominio.Interface
 {
-    interface IObservable
+    public interface IObservable
     {
+        void RegistrarObserver(IObserver observer);
+        void RemoverObserver(IObserver observer);
+        void NotificarObservers(string mensagem);
     }
 }

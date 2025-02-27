@@ -1,6 +1,7 @@
 ﻿namespace SistemaGestaoBiblioteca.Dominio.Interface
 {
-    interface IObserver
+    public interface IObserver
     {
+        void Update(string mensagem);
     }
 }
